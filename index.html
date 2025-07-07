@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="style.css">
+    <title>Document</title>
+</head>
+<body>
+    <div class="mainbody">
+        <div class="row1">
+            <div class="inputpanel">
+                <div class="dropDownGroup">
+                    <label for="algoDropdown" class="labelDropdown">Algorithms</label>
+                <select class="algoDropdown" onchange="inputDisabler(this.value)">
+                    <option value="FCFS">First Come First Serve</option>
+                    <option value="SJF">Shortest Job First</option>
+                    <option value="FCFS">Shortest Remaining Time First</option>
+                    <option value="RR">Round Robin</option>
+                    <option value="MLFQ">MultiLevel Feedback Queue</option>
+                </select> 
+                </div>
+                <div class="sliderGroup">
+                    <div class="slidercol0">
+                        <label for="speedSlider" class="speedText">Speed Multiplier</label>
+                        <input class="speedSlider" type="range" min="1" max="10" value="1" class="slider"
+                         oninput="speedMultiplierChange(this.value)">
+                    </div>
+                    <div class="slidercol1">
+                        <h4 class="sliderText">1</h4>
+                    </div>
+
+                </div>
+                <div class="qsGroup">
+                    <div class="tsGroup">
+                        <label for="tsInput" class="tsLabel">Time Slice</label>
+                        <input type="text" class="tsInput">
+                    </div>
+                    <div class="quantumGroup">
+                        <label for="quantumInput" class="quantumLabel">Quantum Time</label>
+                        <input type="text" class="quantumInput">
+                    </div>
+                </div>
+                <div class="submitGroup">
+                    <button class="startButton" onclick="startSimulation()">Start Simulation</button>
+                </div>
+            </div>
+                
+            <div class="ganttitlepanel">
+                <div class="titlepanel"></div>
+                <div class="ganttpanel">
+                    <div class="ganttGroup">
+
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="row2">
+            <div class="resultpanel">
+                <div class="resultTableGroup">
+                    <table class="processTable">
+                        <thead>
+                            <tr>
+                                <th>PID</th>
+                                <th>AT</th>
+                                <th>BT</th>
+                                <th>CT</th>
+                                <th>TAT</th>
+                                <th>RT</th>
+                                <th>Progress</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            <div class="mlfqresultpanel"></div>
+            <div class="logspanel">
+                <div class="logsGroup">
+                    
+                </div>
+            </div>
+        </div>
+        <div class="row3">
+
+        </div>
+        <script src="script.js"></script>
+    </div>
+</body>
+</html>

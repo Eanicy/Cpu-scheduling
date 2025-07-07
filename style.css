@@ -1,0 +1,270 @@
+* {
+    margin: 0;
+    padding: 0;
+}
+
+.number {
+    background-color: none;
+}
+
+.mainbody {
+    height: 100vh;
+    width: 100vw;
+    display: flex;
+    flex-direction: column;
+}
+
+/* Row 1 */
+.row1 {
+    height: 300px;
+    display: flex;
+    flex-direction: row;
+    background-color: lightcoral;
+}
+
+.inputpanel {
+    width: 400px;
+    margin-right: 30px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    background-color: lightgreen;
+}
+
+.dropDownGroup {
+    margin-top: 10px;
+    background-color: lightyellow;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.labelDropdown {
+    align-self: flex-start;
+    margin-bottom: 10px;
+    font-size: large;
+    font-weight: bolder;
+}
+
+.algoDropdown {
+    width: 300px;
+    height: 40px;
+}
+
+.sliderGroup {
+    margin-top: 10px;
+    display: flex;
+    flex-direction: row;
+    width: 300px;
+    text-align: center;
+}
+
+.slidercol0 {
+    background-color: lightslategray;
+    width: 250px;
+    display: flex;
+    flex-direction: column;
+}
+
+.speedText {
+    align-self: flex-start;
+    font-size: large;
+    font-weight: bolder;
+}
+
+.speedSlider {
+    margin-top: 10px;
+    -webkit-appearance: none;
+    appearance: none;
+    height: 6px;
+    background: #ccc;
+    border-radius: 0;
+}
+
+.slidercol1 {
+    font-size: xx-large;
+    align-self: center;
+    background-color: lightgoldenrodyellow;
+    flex: 1;
+}
+
+.qsGroup {
+    display: flex;
+    flex-direction: row;
+    margin-top: 20px;
+    width: 300px;
+    background-color: lightseagreen;
+    justify-content: space-evenly;
+}
+
+.tsGroup, .quantumGroup {
+    display: flex;
+    flex-direction: column;
+}
+
+.tsGroup {
+    background-color: lightyellow;
+}
+
+.tsLabel, .quantumLabel {
+    font-size: large;
+    font-weight: bolder;
+    margin-bottom: 10px;
+}
+
+.tsInput, .quantumInput {
+    width: 100px;
+    height: 30px;
+}
+
+.quantumGroup {
+    background-color: lightcyan;
+}
+
+.submitGroup {
+    background-color: lightsteelblue;
+    width: 300px;
+    margin-top: 10px;
+}
+
+.startButton {
+    font-size: large;
+    font-weight: bolder;
+    height: 50px;
+    width: 300px;
+}
+
+.ganttitlepanel {
+    background-color: lightgoldenrodyellow;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+}
+
+.titlepanel {
+    background-color: lightskyblue;
+    flex: 1;
+}
+
+.ganttpanel {
+    background-color: lightpink;
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.ganttGroup {
+    display: flex;
+    background-color: beige;
+    height: 80%;
+    width: 910px;
+    position: relative;
+    padding: 5px;
+}
+
+.ganttBlock {
+    height: 80px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-weight: bold;
+    border: 1px solid #222;
+    margin-right: 2px;
+    border-radius: 4px;
+    transition: width 0.1s linear;
+    position: absolute;
+    top: 0;
+}
+
+.timeLabel {
+    position: absolute;
+    font-size: 20px;
+    bottom: -20px;
+}
+
+/* Row 2 */
+.row2 {
+    height: 350px;
+    display: flex;
+    flex-direction: row;
+    background-color: lightslategray;
+}
+
+.resultpanel {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: lightseagreen;
+}
+
+.resultTableGroup {
+    background-color: lightcoral;
+    height: 320px;
+    width: 95%;
+    overflow-y: auto;
+}
+
+.processTable {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 10px;
+}
+
+.processTable thead th {
+    position: sticky;
+    top: 0;
+    background-color: white;
+    z-index: 1;
+}
+
+th, td {
+    border: 1px solid #aaa;
+    padding: 10px;
+}
+
+.progress {
+    height: 20px;
+    padding: 10px;
+    overflow: hidden;
+}
+
+.progress div {
+    background-color: rgb(0, 255, 115);
+    height: 100%;
+    width: 30%;
+    transition: width 0.3s ease;
+}
+
+.mlfqresultpanel {
+    background-color: lightyellow;
+    flex: 1;
+}
+
+.logspanel {
+    background-color: rgb(91, 115, 255);
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.logsGroup {
+    padding: 10px;
+    background-color: #222;
+    height: 320px;
+    max-height: 320px;
+    width: 430px;
+    color: green;
+    font-size: 18px;
+    font-family: monospace;
+    overflow-y: auto;
+}
+
+/* Row 3 */
+.row3 {
+    background-color: lightgreen;
+    height: 20px;
+}
