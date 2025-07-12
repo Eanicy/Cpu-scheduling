@@ -12,14 +12,32 @@ function startSimulation() {
   else if(inputChecker() == "RR")
     result = rr(processList);
   else
-    alert("Posang bato wala pang ganto na algo");
+    result = mlfq(processList);
   updateTable(result);
 }
+
+document.addEventListener("DOMContentLoaded", function () {
+  // This is like Start()
+  console.log("Page loaded. Initialize stuff here.");
+  let tsbox = document.querySelector(".tsInput");
+  let allotbox = document.querySelector(".allotmentInput");
+  tsbox.disabled = true;
+  allotbox.disabled = true;
+});
+
+function speedMultiplierChange(value){
+  let sliderText = document.querySelector(".sliderText");
+  if(value <10)
+    sliderText.textContent = "0." + `${value}` + "x";
+  else
+    sliderText.textContent = "1.0x";
+}
+
 
 function inputChecker(){
   let value = document.querySelector(".algoDropdown").value;
   let tsbox = document.querySelector(".tsInput");
-  let allotbox = document.querySelector(".quantumInput");
+  let allotbox = document.querySelector(".allotmentInput");
   if(value == "RR"){
     tsbox.disabled = false;
     allotbox.disabled = true;
@@ -49,11 +67,11 @@ function randomRows() {
 
 
     if(i==0){
-      at =1; bt =1;
+      at =0; bt =12;
     }else if (i==1){
-      at =0; bt=4;
+      at =1; bt=4;
     }else if(i==2){
-      at=1; bt=3;
+      at=2; bt=6;
     }
 
     const process = {
@@ -289,10 +307,120 @@ function getDatatables() {
   return data;
 }
 
+ function mlfq(processList) {
+  const baseQuantum = parseInt(document.querySelector(".tsInput").value);
+  const allotment = parseInt(document.querySelector(".allotmentInput").value);
+  alert(`${allotment}`);
+  if (isNaN(baseQuantum) || isNaN(allotment)) {
+    alert("Please enter valid quantum and allotment times for MLFQ.");
+    return [];
+  }
 
-function mlfq(){
+  const n = processList.length;
+  let time = 0;
+  let completed = 0;
 
+  const remaining = processList.map(p => p.bt);
+  const usedAllotment = new Array(n).fill(0);
+  const rtSet = new Array(n).fill(false);
+  const isCompleted = new Array(n).fill(false);
+
+  const Q0 = [], Q1 = [], Q2 = [];
+
+  // Track which process is in which queue
+  const inQueue = new Array(n).fill(false);
+
+  while (completed < n) {
+    // Enqueue newly arrived processes to Q0
+    for (let i = 0; i < n; i++) {
+      if (processList[i].at <= time && !isCompleted[i] && !inQueue[i]) {
+        Q0.push(i);
+        inQueue[i] = true;
+      }
+    }
+
+    let idx = -1;
+    let queueLevel = -1;
+    let quantum = 0;
+
+    if (Q0.length > 0) {
+      idx = Q0.shift(); queueLevel = 0; quantum = baseQuantum;
+    } else if (Q1.length > 0) {
+      idx = Q1.shift(); queueLevel = 1; quantum = baseQuantum * 2;
+    } else if (Q2.length > 0) {
+      idx = Q2.shift(); queueLevel = 2; quantum = remaining[idx];
+    } else {
+      // CPU idle
+      time++;
+      continue;
+    }
+
+    inQueue[idx] = false; // remove from queue marker
+    const p = processList[idx];
+
+    if (!rtSet[idx]) {
+      p.rt = time - p.at;
+      rtSet[idx] = true;
+    }
+
+    let execTime = 0;
+    if (queueLevel < 2) {
+      const remainingAllotment = allotment - usedAllotment[idx];
+      execTime = Math.min(quantum, remaining[idx], remainingAllotment);
+    } else {
+      execTime = quantum; // FCFS in Q2
+    }
+
+    // Simulate execution
+    for (let t = 0; t < execTime; t++) {
+      time++;
+
+      // Enqueue new arrivals during execution
+      for (let i = 0; i < n; i++) {
+        if (processList[i].at === time && !isCompleted[i] && !inQueue[i]) {
+          Q0.push(i);
+          inQueue[i] = true;
+        }
+      }
+    }
+
+    remaining[idx] -= execTime;
+    usedAllotment[idx] += execTime;
+
+    if (remaining[idx] === 0) {
+      isCompleted[idx] = true;
+      p.ct = time;
+      p.tat = p.ct - p.at;
+      completed++;
+      console.log(`✅ ${p.pid} finished at ${time}`);
+    } else {
+      // Demote if allotment used up
+      if (queueLevel === 0 && usedAllotment[idx] >= allotment) {
+        usedAllotment[idx] = 0;
+        Q1.push(idx);
+        inQueue[idx] = true;
+      } else if (queueLevel === 1 && usedAllotment[idx] >= allotment) {
+        usedAllotment[idx] = 0;
+        Q2.push(idx);
+        inQueue[idx] = true;
+      } else if (queueLevel === 0) {
+        Q0.push(idx);
+        inQueue[idx] = true;
+      } else if (queueLevel === 1) {
+        Q1.push(idx);
+        inQueue[idx] = true;
+      } else {
+        Q2.push(idx);
+        inQueue[idx] = true;
+      }
+    }
+
+    console.log(`⏳ ${p.pid} ran in Q${queueLevel} for ${execTime}, remaining: ${remaining[idx]}`);
+  }
+
+  return processList;
 }
+
 
 function updateTable(updatedProcesses) {
   const rows = document.querySelectorAll(".processTable tbody tr");
