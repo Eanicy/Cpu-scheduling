@@ -1,52 +1,45 @@
+let executionTimeline = [];
 
 function startSimulation() {
+  executionTimeline = [];
   let result;
   randomRows();
   let processList = getDatatables();
-  if(inputChecker() == "FCFS")
+  if (inputChecker() == "FCFS")
     result = fcfs(processList);
-  else if(inputChecker() == "SJF")
+  else if (inputChecker() == "SJF")
     result = sjf(processList);
-  else if(inputChecker() == "SRTF")
+  else if (inputChecker() == "SRTF")
     result = srtf(processList);
-  else if(inputChecker() == "RR")
+  else if (inputChecker() == "RR")
     result = rr(processList);
   else
     result = mlfq(processList);
-  updateTable(result);
+  console.table(executionTimeline);
+  //updateTableDelayed(result);
+  startCpuTimer();
+  updateTableLive(result);
+  updateProgressBars(result);
 }
 
 document.addEventListener("DOMContentLoaded", function () {
-  // This is like Start()
-  console.log("Page loaded. Initialize stuff here.");
   let tsbox = document.querySelector(".tsInput");
   let allotbox = document.querySelector(".allotmentInput");
   tsbox.disabled = true;
   allotbox.disabled = true;
 });
 
-function speedMultiplierChange(value){
-  let sliderText = document.querySelector(".sliderText");
-  if(value <10)
-    sliderText.textContent = "0." + `${value}` + "x";
-  else
-    sliderText.textContent = "1.0x";
-}
-
-
-function inputChecker(){
+function inputChecker() {
   let value = document.querySelector(".algoDropdown").value;
   let tsbox = document.querySelector(".tsInput");
   let allotbox = document.querySelector(".allotmentInput");
-  if(value == "RR"){
+  if (value == "RR") {
     tsbox.disabled = false;
     allotbox.disabled = true;
-  }
-  else if(value == "MLFQ"){
+  } else if (value == "MLFQ") {
     tsbox.disabled = false;
     allotbox.disabled = false;
-  }
-  else{
+  } else {
     tsbox.disabled = true;
     allotbox.disabled = true;
   }
@@ -57,7 +50,6 @@ function randomRows() {
   let table = document.querySelector(".processTable tbody");
   table.innerHTML = "";
   processes = [];
-
   const numOfProcesses = 3;
 
   for (let i = 0; i < numOfProcesses; i++) {
@@ -65,25 +57,18 @@ function randomRows() {
     let at = Math.floor(Math.random() * 4);
     let bt = Math.floor(Math.random() * 4) + 1;
 
-
-    if(i==0){
-      at =0; bt =12;
-    }else if (i==1){
-      at =1; bt=4;
-    }else if(i==2){
-      at=2; bt=6;
+    if (i == 0) {
+      at = 0;
+      bt = 12;
+    } else if (i == 1) {
+      at = 1;
+      bt = 4;
+    } else if (i == 2) {
+      at = 2;
+      bt = 6;
     }
 
-    const process = {
-      pid,
-      at,
-      bt,
-      ct: 0,
-      tat: 0,
-      rt: 0,
-
-    }
-
+    const process = { pid, at, bt, ct: 0, tat: 0, rt: 0 };
     processes.push(process);
 
     const row = document.createElement("tr");
@@ -94,7 +79,12 @@ function randomRows() {
       <td class="ct">-</td>
       <td class="tat">-</td>
       <td class="rt">-</td>
-      <td class="progress"><div style="width: 0%"></div></td>
+      <td class="progress">
+  <div style="width: 0%; height: 100%; background: lime; position: relative;">
+    <span style="position: absolute; width: 100%; text-align: center; color: black; font-size: 0.8em;">0%</span>
+  </div>
+</td>
+
     `;
     table.appendChild(row);
   }
@@ -103,17 +93,28 @@ function randomRows() {
 }
 
 function fcfs(processList) {
-  // Sort by arrival time
   processList.sort((a, b) => a.at - b.at);
-
   let currentTime = 0;
 
   for (let p of processList) {
-    if (currentTime < p.at) currentTime = p.at; // If CPU is idle
-    p.rt = currentTime - p.at;                 // RT = Start - Arrival
-    p.ct = currentTime + p.bt;                 // CT = Start + Burst
-    p.tat = p.ct - p.at;                       // TAT = CT - Arrival
-    currentTime = p.ct;                        // Move clock forward
+    if (currentTime < p.at) {
+      currentTime = p.at;
+    }
+
+    const startTime = currentTime;
+    const endTime = startTime + p.bt;
+
+    p.rt = startTime - p.at;
+    p.ct = endTime;
+    p.tat = p.ct - p.at;
+    currentTime = endTime;
+
+    executionTimeline.push({
+    pid: p.pid,
+    starts: startTime,
+    duration: p.bt,
+    endState: "completed"
+  });
   }
 
   return processList;
@@ -127,32 +128,38 @@ function sjf(processList) {
   let result = [];
 
   while (completed < n) {
-    // Filter processes that have arrived and are not yet done
     let available = processList.filter((p, i) => p.at <= time && !isVisited[i]);
 
     if (available.length === 0) {
-      time++; // No process has arrived yet, advance time
+      let nextArrival = Math.min(...processList.filter((_, i) => !isVisited[i]).map(p => p.at));
+      time = nextArrival;
       continue;
     }
 
-    // Pick process with shortest burst time
     available.sort((a, b) => a.bt - b.bt);
     const shortest = available[0];
-
     const idx = processList.findIndex(p => p.pid === shortest.pid);
+
     isVisited[idx] = true;
     completed++;
 
-    // Start time = current time
-    shortest.rt = time - shortest.at;
-    if (shortest.rt < 0) shortest.rt = 0; // if process starts at arrival
+    const startTime = time;
+    const endTime = time + shortest.bt;
 
-    shortest.ct = time + shortest.bt;
+    shortest.rt = startTime - shortest.at;
+    if (shortest.rt < 0) shortest.rt = 0;
+
+    shortest.ct = endTime;
     shortest.tat = shortest.ct - shortest.at;
-    
-    time = shortest.ct;
-
+    time = endTime;
     result.push(shortest);
+
+    executionTimeline.push({
+    pid: shortest.pid,
+    starts: startTime,
+    duration: shortest.bt,
+    endState: "completed"
+});
   }
 
   return result;
@@ -167,11 +174,14 @@ function srtf(processList) {
   const isStarted = new Array(n).fill(false);
   const startTimes = new Array(n).fill(null);
 
+  let currentPid = null;
+  let sliceStart = null;
+
   while (completed < n) {
-    // Find the available process with the shortest remaining time
     let idx = -1;
     let minRT = Infinity;
 
+    // 🔍 Find the process with the shortest remaining time that has arrived
     for (let i = 0; i < n; i++) {
       const p = processList[i];
       if (p.at <= time && !isCompleted[i] && remaining[i] < minRT && remaining[i] > 0) {
@@ -181,27 +191,53 @@ function srtf(processList) {
     }
 
     if (idx === -1) {
-      time++; // CPU is idle
+      time++;
       continue;
     }
 
+    const p = processList[idx];
+
+    // ⏱️ First time the process is starting
     if (!isStarted[idx]) {
       isStarted[idx] = true;
       startTimes[idx] = time;
     }
 
+    // 🔄 Handle preemption logging
+    if (currentPid !== p.pid) {
+      if (currentPid !== null && sliceStart !== null) {
+        executionTimeline.push({
+          pid: currentPid,
+          starts: sliceStart,
+          duration: time - sliceStart,
+          endState: "preempted"
+        });
+      }
+      currentPid = p.pid;
+      sliceStart = time;
+    }
+
+    // ⛏️ Execute for 1 unit of time
     remaining[idx]--;
     time++;
 
-    // If finished
+    // ✅ Completion logging
     if (remaining[idx] === 0) {
       isCompleted[idx] = true;
       completed++;
-
-      const p = processList[idx];
       p.ct = time;
       p.tat = p.ct - p.at;
       p.rt = startTimes[idx] - p.at;
+
+      executionTimeline.push({
+        pid: p.pid,
+        starts: sliceStart,
+        duration: time - sliceStart,
+        endState: "completed"
+      });
+
+      currentPid = null;
+      sliceStart = null;
     }
   }
 
@@ -226,13 +262,12 @@ function rr(processList) {
   const rtSet = new Array(n).fill(false);
   const queue = [];
 
-  const originalOrder = processList.map(p => p.pid); // Preserve PID order
+  const originalOrder = processList.map(p => p.pid);
   const pidToIndex = processList.reduce((map, p, i) => {
     map[p.pid] = i;
     return map;
   }, {});
 
-  // Sort processes by arrival time to get first entries
   const sorted = [...processList].sort((a, b) => a.at - b.at);
   for (let i = 0; i < n; i++) {
     if (sorted[i].at <= time && !isInQueue[pidToIndex[sorted[i].pid]]) {
@@ -262,10 +297,19 @@ function rr(processList) {
     }
 
     const execTime = Math.min(quantum, remaining[idx]);
+
+    // ⏱️ Timeline log before running
+    executionTimeline.push({
+      pid: p.pid,
+      starts: time,
+      duration: execTime,
+      endState: (remaining[idx] === execTime) ? "completed" : "preempted"
+    });
+
     remaining[idx] -= execTime;
     time += execTime;
 
-    // Check for new arrivals during execution window
+    // Check new arrivals during execution
     for (let i = 0; i < n; i++) {
       if (!isCompleted[i] && !isInQueue[i] && processList[i].at <= time) {
         queue.push(i);
@@ -279,12 +323,118 @@ function rr(processList) {
       isCompleted[idx] = true;
       completed++;
     } else {
-      queue.push(idx); // Not yet done, requeue
+      queue.push(idx); // Preempted
     }
   }
 
-  // Return in original table row order (P1, P2, etc.)
   return originalOrder.map(pid => processList[pidToIndex[pid]]);
+}
+
+function mlfq(processList) {
+  const baseQuantum = parseInt(document.querySelector(".tsInput").value);
+  const allotment = parseInt(document.querySelector(".allotmentInput").value);
+
+  if (isNaN(baseQuantum) || isNaN(allotment)) {
+    alert("Please enter valid quantum and allotment times for MLFQ.");
+    return [];
+  }
+
+  const n = processList.length;
+  let time = 0;
+  let completed = 0;
+
+  const remaining = processList.map(p => p.bt);
+  const usedAllotment = new Array(n).fill(0);
+  const rtSet = new Array(n).fill(false);
+  const isCompleted = new Array(n).fill(false);
+  const inQueue = new Array(n).fill(false);
+
+  const Q0 = [], Q1 = [], Q2 = [], Q3 = [];
+
+  while (completed < n) {
+    for (let i = 0; i < n; i++) {
+      if (processList[i].at <= time && !isCompleted[i] && !inQueue[i]) {
+        Q0.push(i);
+        inQueue[i] = true;
+      }
+    }
+
+    let idx = -1;
+    let queueLevel = -1;
+    let quantum = 0;
+
+    if (Q0.length > 0) {
+      idx = Q0.shift(); queueLevel = 0; quantum = baseQuantum;
+    } else if (Q1.length > 0) {
+      idx = Q1.shift(); queueLevel = 1; quantum = baseQuantum * 2;
+    } else if (Q2.length > 0) {
+      idx = Q2.shift(); queueLevel = 2; quantum = baseQuantum * 4;
+    } else if (Q3.length > 0) {
+      idx = Q3.shift(); queueLevel = 3; quantum = remaining[idx];
+    } else {
+      time++;
+      continue;
+    }
+
+    inQueue[idx] = false;
+    const p = processList[idx];
+
+    if (!rtSet[idx]) {
+      p.rt = time - p.at;
+      rtSet[idx] = true;
+    }
+
+    let execTime = 0;
+    if (queueLevel < 3) {
+      const remainingAllot = allotment - usedAllotment[idx];
+      execTime = Math.min(quantum, remaining[idx], remainingAllot);
+    } else {
+      execTime = quantum;
+    }
+
+    for (let t = 0; t < execTime; t++) {
+      time++;
+      for (let i = 0; i < n; i++) {
+        if (processList[i].at === time && !isCompleted[i] && !inQueue[i]) {
+          Q0.push(i);
+          inQueue[i] = true;
+        }
+      }
+    }
+
+    executionTimeline.push({
+  pid: p.pid,
+  starts: time,
+  duration: execTime,
+  endState: (remaining[idx] === execTime) ? "completed" : "preempted"
+});
+
+    remaining[idx] -= execTime;
+    usedAllotment[idx] += execTime;
+
+    if (remaining[idx] === 0) {
+      isCompleted[idx] = true;
+      p.ct = time;
+      p.tat = p.ct - p.at;
+      completed++;
+    } else {
+      if (queueLevel === 0 && usedAllotment[idx] >= allotment) {
+        usedAllotment[idx] = 0; Q1.push(idx); inQueue[idx] = true;
+      } else if (queueLevel === 1 && usedAllotment[idx] >= allotment) {
+        usedAllotment[idx] = 0; Q2.push(idx); inQueue[idx] = true;
+      } else if (queueLevel === 2 && usedAllotment[idx] >= allotment) {
+        usedAllotment[idx] = 0; Q3.push(idx); inQueue[idx] = true;
+      } else {
+        if (queueLevel === 0) Q0.push(idx);
+        else if (queueLevel === 1) Q1.push(idx);
+        else if (queueLevel === 2) Q2.push(idx);
+        else Q3.push(idx);
+        inQueue[idx] = true;
+      }
+    }
+  }
+
+  return processList;
 }
 
 function getDatatables() {
@@ -306,137 +456,131 @@ function getDatatables() {
 
   return data;
 }
-
- function mlfq(processList) {
-  const baseQuantum = parseInt(document.querySelector(".tsInput").value);
-  const allotment = parseInt(document.querySelector(".allotmentInput").value);
-  alert(`${allotment}`);
-  if (isNaN(baseQuantum) || isNaN(allotment)) {
-    alert("Please enter valid quantum and allotment times for MLFQ.");
-    return [];
-  }
-
-  const n = processList.length;
-  let time = 0;
-  let completed = 0;
-
-  const remaining = processList.map(p => p.bt);
-  const usedAllotment = new Array(n).fill(0);
-  const rtSet = new Array(n).fill(false);
-  const isCompleted = new Array(n).fill(false);
-
-  const Q0 = [], Q1 = [], Q2 = [];
-
-  // Track which process is in which queue
-  const inQueue = new Array(n).fill(false);
-
-  while (completed < n) {
-    // Enqueue newly arrived processes to Q0
-    for (let i = 0; i < n; i++) {
-      if (processList[i].at <= time && !isCompleted[i] && !inQueue[i]) {
-        Q0.push(i);
-        inQueue[i] = true;
-      }
-    }
-
-    let idx = -1;
-    let queueLevel = -1;
-    let quantum = 0;
-
-    if (Q0.length > 0) {
-      idx = Q0.shift(); queueLevel = 0; quantum = baseQuantum;
-    } else if (Q1.length > 0) {
-      idx = Q1.shift(); queueLevel = 1; quantum = baseQuantum * 2;
-    } else if (Q2.length > 0) {
-      idx = Q2.shift(); queueLevel = 2; quantum = remaining[idx];
-    } else {
-      // CPU idle
-      time++;
-      continue;
-    }
-
-    inQueue[idx] = false; // remove from queue marker
-    const p = processList[idx];
-
-    if (!rtSet[idx]) {
-      p.rt = time - p.at;
-      rtSet[idx] = true;
-    }
-
-    let execTime = 0;
-    if (queueLevel < 2) {
-      const remainingAllotment = allotment - usedAllotment[idx];
-      execTime = Math.min(quantum, remaining[idx], remainingAllotment);
-    } else {
-      execTime = quantum; // FCFS in Q2
-    }
-
-    // Simulate execution
-    for (let t = 0; t < execTime; t++) {
-      time++;
-
-      // Enqueue new arrivals during execution
-      for (let i = 0; i < n; i++) {
-        if (processList[i].at === time && !isCompleted[i] && !inQueue[i]) {
-          Q0.push(i);
-          inQueue[i] = true;
-        }
-      }
-    }
-
-    remaining[idx] -= execTime;
-    usedAllotment[idx] += execTime;
-
-    if (remaining[idx] === 0) {
-      isCompleted[idx] = true;
-      p.ct = time;
-      p.tat = p.ct - p.at;
-      completed++;
-      console.log(`✅ ${p.pid} finished at ${time}`);
-    } else {
-      // Demote if allotment used up
-      if (queueLevel === 0 && usedAllotment[idx] >= allotment) {
-        usedAllotment[idx] = 0;
-        Q1.push(idx);
-        inQueue[idx] = true;
-      } else if (queueLevel === 1 && usedAllotment[idx] >= allotment) {
-        usedAllotment[idx] = 0;
-        Q2.push(idx);
-        inQueue[idx] = true;
-      } else if (queueLevel === 0) {
-        Q0.push(idx);
-        inQueue[idx] = true;
-      } else if (queueLevel === 1) {
-        Q1.push(idx);
-        inQueue[idx] = true;
-      } else {
-        Q2.push(idx);
-        inQueue[idx] = true;
-      }
-    }
-
-    console.log(`⏳ ${p.pid} ran in Q${queueLevel} for ${execTime}, remaining: ${remaining[idx]}`);
-  }
-
-  return processList;
-}
-
-
-function updateTable(updatedProcesses) {
+/*
+function updateTableDelayed(processes) {
   const rows = document.querySelectorAll(".processTable tbody tr");
 
-  updatedProcesses.forEach((process) => {
-    for (let row of rows) {
-      const rowPid = row.children[0].textContent;
-      if (rowPid === process.pid) {
+  processes.forEach((p) => {
+    const row = Array.from(rows).find(r => r.children[0].textContent === p.pid);
+    const ctCell = row.querySelector(".ct");
+    const tatCell = row.querySelector(".tat");
+    const rtCell = row.querySelector(".rt");
+
+    ctCell.textContent = p.ct;
+    tatCell.textContent = p.tat;
+    rtCell.textContent = p.rt;
+  });
+}*/
+
+let cpuTime = 0;
+let cpuTimerId = null;
+
+function startCpuTimer() {
+  cpuTime = 0;
+  updateCpuTimeDisplay(); // Set initial to 0
+
+  cpuTimerId = setInterval(() => {
+    cpuTime+= 0.1;
+    updateCpuTimeDisplay();
+  }, 100); // 500ms = 1 unit of CPU time
+}
+
+function updateCpuTimeDisplay() {
+  document.querySelector(".timenum").textContent = `CPU Time: ${Math.floor(cpuTime)}`;
+}
+
+function updateTableLive(processes) {
+  const completedMap = {};
+  const rows = document.querySelectorAll(".processTable tbody tr");
+
+  const checkInterval = setInterval(() => {
+    const currentCpu = Math.floor(cpuTime);
+
+    executionTimeline.forEach(entry => {
+      const { pid, starts, duration, endState } = entry;
+      const endTime = starts + duration;
+
+      if (endState === "completed" && currentCpu >= endTime && !completedMap[pid]) {
+        const process = processes.find(p => p.pid === pid);
+        if (!process) return;
+
+        const row = Array.from(rows).find(r => r.children[0].textContent.trim() === pid);
+        if (!row) return;
+
         row.querySelector(".ct").textContent = process.ct;
         row.querySelector(".tat").textContent = process.tat;
         row.querySelector(".rt").textContent = process.rt;
-        break; // Found match, exit loop
+
+        completedMap[pid] = true;
+        row.classList.add("completed"); // optional: CSS highlight
       }
+    });
+
+    if (Object.keys(completedMap).length === processes.length) {
+      clearInterval(checkInterval);
     }
-  });
+  }, 100);
 }
 
+function updateProgressBars(processes) {
+  const rows = document.querySelectorAll(".processTable tbody tr");
+  const progressTimeMap = {};
+  let activePid = null;
+  let lastCpu = -1;
 
+  processes.forEach(p => {
+    progressTimeMap[p.pid] = 0;
+  });
 
+  const interval = setInterval(() => {
+    const currentCpu = Math.floor(cpuTime);
+
+    if (currentCpu === lastCpu) return; // Skip duplicates
+    lastCpu = currentCpu;
+
+    // Find the currently active timeline entry
+    const entry = executionTimeline.find(e =>
+      currentCpu >= e.starts && currentCpu < e.starts + e.duration
+    );
+
+    if (entry) {
+      activePid = entry.pid;
+      progressTimeMap[entry.pid] += 1; // One unit per frame
+    }
+
+    processes.forEach(p => {
+      const row = Array.from(rows).find(r => r.children[0].textContent.trim() === p.pid);
+      const bar = row?.querySelector(".progress div");
+
+      if (!bar) return;
+
+      const executed = progressTimeMap[p.pid];
+      const percent = Math.min((executed / p.bt) * 100, 100);
+
+      bar.style.width = `${percent}%`;
+
+      let label = bar.querySelector("span");
+      if (!label) {
+        label = document.createElement("span");
+        label.style.position = "absolute";
+        label.style.left = "50%";
+        label.style.transform = "translateX(-50%)";
+        label.style.color = "black";
+        label.style.fontSize = "10px";
+        label.style.pointerEvents = "none";
+        bar.style.position = "relative";
+        bar.appendChild(label);
+      }
+
+      label.textContent = `${Math.floor(percent)}%`;
+    });
+
+    // Stop if all processes are at 100%
+    const allDone = processes.every(p => {
+      const row = Array.from(rows).find(r => r.children[0].textContent.trim() === p.pid);
+      const bar = row?.querySelector(".progress div");
+      const width = parseFloat(bar?.style.width || "0");
+      return width >= 99.9;
+    });
+  }, 100);
+}
