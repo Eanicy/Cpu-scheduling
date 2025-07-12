@@ -12,3 +12,6 @@
 
 07/12/25
 |Bazar| - added a MLFQ. now plans to make gantt chart
+
+07/12/25
+|Bazar| - added progress bars, timeline object, and soon will be working to dynamic elements.
