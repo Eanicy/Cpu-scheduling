@@ -9,3 +9,6 @@
 
 07/10/25
 |Bazar| - revised the whole code, made it organized. properly distributing the table data. added rr in the code.
+
+07/12/25
+|Bazar| - added a MLFQ. now plans to make gantt chart
