@@ -11,7 +11,7 @@
         <div class="row1">
             <div class="inputpanel">
                 <div class="dropDownGroup">
-                    <label for="algoDropdown" class="labelDropdown">Algorithms</label>
+                    <label for="algoDropdown" class="labelDropdown">ALGORITHMS</label>
                 <select class="algoDropdown" onchange="inputChecker()">
                     <option value="FCFS">First Come First Serve</option>
                     <option value="SJF">Shortest Job First</option>
@@ -20,18 +20,11 @@
                     <option value="MLFQ">MultiLevel Feedback Queue</option>
                 </select> 
                 </div>
-                <div class="sliderGroup">
-                    <div class="slidercol0">
-                        <label for="speedSlider" class="speedText">Speed Multiplier</label>
-                        <input class="speedSlider" type="range" min="1" max="10" value="1" class="slider"
-                         oninput="speedMultiplierChange(this.value)">
-                    </div>
-                    <div class="slidercol1">
-                        <h4 class="sliderText">0.1x</h4>
-                    </div>
-
-                </div>
                 <div class="qsGroup">
+                    <div class="numProcessGroup">
+                        <label for="numProcessInput" class="numProcessLabel"># of Process</label>
+                        <input type="number" class="numProcessInput" placeholder="#">
+                    </div>
                     <div class="tsGroup">
                         <label for="tsInput" class="tsLabel">Time Slice</label>
                         <input type="number" class="tsInput">
@@ -40,6 +33,7 @@
                         <label for="allotmentInput" class="quantumLabel">Allotment Time</label>
                         <input type="number" class="allotmentInput">
                     </div>
+
                 </div>
                 <div class="submitGroup">
                     <button class="startButton" onclick="startSimulation()">Start Simulation</button>
@@ -56,6 +50,18 @@
             </div>
         </div>
         <div class="row2">
+
+            <div class="mlfqresultpanel">
+                <h5 class="timenum">CPU Time: -</h5>
+                <div class="monitoringPanel">
+                    <p class="nextCPU">Current CPU: -</p>
+                    <p class="nextCPU">Next CPU: -</p>
+                    <p class="nextCPU">Total Execution Time: -</p>
+                    <p class="nextCPU">Overall Progress: -</p>
+                    <p class="nextCPU">AVG TAT: -</p>
+                    <p class="nextCPU">AVG RT: -</p>
+                </div>
+            </div>
             <div class="resultpanel">
                 <div class="resultTableGroup">
                     <table class="processTable">
@@ -75,16 +81,13 @@
                     </table>
                 </div>
             </div>
-            <div class="mlfqresultpanel"></div>
             <div class="logspanel">
                 <div class="logsGroup">
-                    
+
                 </div>
             </div>
         </div>
-        <div class="row3">
-            <h5 class="timenum">CPU Time: 0</h5>
-        </div>
+
         <script src="script.js"></script>
     </div>
 </body>
