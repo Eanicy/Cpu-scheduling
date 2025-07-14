@@ -1,3 +1,29 @@
+// Updates the monitoringPanel with CPU scheduling stats as the simulation runs.
+function updateMonitoringPanel({
+    cpuTime = '-',
+    currentCPU = '-',
+    nextCPU = '-',
+    totalExecutionTime = '-',
+    overallProgress = '-',
+    avgTAT = '-',
+    avgRT = '-'
+} = {}) {
+    document.querySelector('.timenum').textContent = `CPU Time: ${cpuTime}`;
+    const monitoringPanel = document.querySelector('.monitoringPanel');
+    if (!monitoringPanel) return;
+    const stats = [
+        `Current CPU: ${currentCPU}`,
+        `Next CPU: ${nextCPU}`,
+        `Total Execution Time: ${totalExecutionTime}`,
+        `Overall Progress: ${overallProgress}`,
+        `AVG TAT: ${avgTAT}`,
+        `AVG RT: ${avgRT}`
+    ];
+    const pTags = monitoringPanel.querySelectorAll('p.nextCPU');
+    pTags.forEach((p, i) => {
+        if (stats[i] !== undefined) p.textContent = stats[i];
+    });
+}
 let executionTimeline = [];
 
 function startSimulation() {
@@ -564,6 +590,43 @@ function updateTableLive(processes) {
     const checkInterval = setInterval(() => {
         const currentCpu = Math.floor(cpuTime);
 
+        // Find current and next CPU
+        let currentEntry = executionTimeline.find(e => currentCpu >= e.starts && currentCpu < e.starts + e.duration);
+        let nextEntry = executionTimeline.find(e => e.starts > currentCpu);
+        let currentCPU = currentEntry ? currentEntry.pid : '-';
+        let nextCPU = nextEntry ? nextEntry.pid : '-';
+
+        // Calculate total execution time
+        let totalExecutionTime = 0;
+        if (executionTimeline.length > 0) {
+            let last = executionTimeline[executionTimeline.length - 1];
+            totalExecutionTime = last.starts + last.duration;
+        }
+
+        // Calculate overall progress
+        let finished = Object.keys(completedMap).length;
+        let allDone = processes.length > 0 && finished === processes.length;
+        let overallProgress = allDone ? '100%' : (processes.length > 0 ? `${Math.floor((finished / processes.length) * 100)}%` : '-');
+
+        // Calculate AVG TAT and AVG RT
+        let tatSum = 0, rtSum = 0, tatCount = 0, rtCount = 0;
+        processes.forEach(p => {
+            if (typeof p.tat === 'number') { tatSum += p.tat; tatCount++; }
+            if (typeof p.rt === 'number') { rtSum += p.rt; rtCount++; }
+        });
+        let avgTAT = tatCount > 0 ? (tatSum / tatCount).toFixed(2) : '-';
+        let avgRT = rtCount > 0 ? (rtSum / rtCount).toFixed(2) : '-';
+
+        updateMonitoringPanel({
+            cpuTime: Math.floor(cpuTime),
+            currentCPU,
+            nextCPU,
+            totalExecutionTime,
+            overallProgress,
+            avgTAT,
+            avgRT
+        });
+
         executionTimeline.forEach(entry => {
             const { pid, starts, duration, endState } = entry;
             const endTime = starts + duration;
@@ -584,8 +647,9 @@ function updateTableLive(processes) {
             }
         });
 
-        if (Object.keys(completedMap).length === processes.length) {
+        if (allDone) {
             clearInterval(checkInterval);
+            clearInterval(cpuTimerId); // Stop CPU timer
         }
     }, 100);
     //clearInterval(checkInterval);
@@ -797,7 +861,3 @@ function getColorForPid(pid) {
     pidColorMap[pid] = newColor;
     return newColor;
 }
-
-
-
-
