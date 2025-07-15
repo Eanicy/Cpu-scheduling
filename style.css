@@ -9,6 +9,7 @@
     margin: 0;
     padding: 0;
     font-family: 'Roboto';
+    border-radius: 10px;
 }
 
 .number {
@@ -111,7 +112,7 @@
 
 .ganttitlepanel {
     background-color: lightgoldenrodyellow;
-    width: 80vw;
+    width: 85vw;
     display: flex;
     flex-direction: column;
 
@@ -128,7 +129,6 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    width: 72vw;
     border-width: 2px,0,2px,0;
     border-color: white;
     border-style: solid;
@@ -198,6 +198,7 @@
 }
 
 .processTable thead th {
+    border-radius: 0;
     position: sticky;
     top: 0;
     background-color: white;
@@ -255,8 +256,13 @@ th{
     background-color: red;
 }
 
-.logsGroup {
+.logsbg{
     padding: 15px;
+    background-color: #410047;
+}
+
+.logsGroup {
+    
     background-color: #2C2C2C;
     height: 300px;
     max-height: 320px;
