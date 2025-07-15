@@ -83,7 +83,6 @@ function inputChecker() {
 }
 
 
-// Generates a user-specified number of random processes and updates the table
 function randomRows(num) {
     let table = document.querySelector(".processTable tbody");
     table.innerHTML = "";
@@ -92,7 +91,6 @@ function randomRows(num) {
     if (typeof num === 'number' && num > 0) {
         numOfProcesses = num;
     } else {
-        // Try to get from input if not provided
         const input = document.querySelector('.numProcessInput');
         if (input && !isNaN(parseInt(input.value))) {
             numOfProcesses = parseInt(input.value);
@@ -104,7 +102,6 @@ function randomRows(num) {
         let at = Math.floor(Math.random() * 4);
         let bt = Math.floor(Math.random() * 4) + 1;
 
-        // Optionally keep first 3 processes fixed for demo
         if (i == 0) {
             at = 0;
             bt = 2;
@@ -245,7 +242,6 @@ function srtf(processList) {
         let idx = -1;
         let minRT = Infinity;
 
-        // 🔍 Find the process with the shortest remaining time that has arrived
         for (let i = 0; i < n; i++) {
             const p = processList[i];
             if (p.at <= time && !isCompleted[i] && remaining[i] < minRT && remaining[i] > 0) {
@@ -272,13 +268,11 @@ function srtf(processList) {
 
         const p = processList[idx];
 
-        // ⏱️ First time the process is starting
         if (!isStarted[idx]) {
             isStarted[idx] = true;
             startTimes[idx] = time;
         }
 
-        // 🔄 Handle preemption logging
         if (currentPid !== p.pid) {
             if (currentPid !== null && sliceStart !== null) {
                 executionTimeline.push({
@@ -292,11 +286,9 @@ function srtf(processList) {
             sliceStart = time;
         }
 
-        // ⛏️ Execute for 1 unit of time
         remaining[idx]--;
         time++;
-
-        // ✅ Completion logging
+        
         if (remaining[idx] === 0) {
             isCompleted[idx] = true;
             completed++;
@@ -403,7 +395,6 @@ function rr(processList) {
         remaining[idx] -= execTime;
         time += execTime;
 
-        // Check new arrivals during execution
         for (let i = 0; i < n; i++) {
             if (!isCompleted[i] && !isInQueue[i] && processList[i].at <= time) {
                 queue.push(i);
@@ -417,7 +408,7 @@ function rr(processList) {
             isCompleted[idx] = true;
             completed++;
         } else {
-            queue.push(idx); // Preempted
+            queue.push(idx);
         }
     }
 
@@ -583,12 +574,12 @@ let cpuTimerId = null;
 function startCpuTimer() {
     clearInterval(cpuTimerId);
     cpuTime = 0;
-    updateCpuTimeDisplay(); // Set initial to 0
+    updateCpuTimeDisplay();
 
     cpuTimerId = setInterval(() => {
         cpuTime += 0.1;
         updateCpuTimeDisplay();
-    }, 100); // 500ms = 1 unit of CPU time
+    }, 100);
 }
 
 function updateCpuTimeDisplay() {
@@ -602,25 +593,25 @@ function updateTableLive(processes) {
     const checkInterval = setInterval(() => {
         const currentCpu = Math.floor(cpuTime);
 
-        // Find current and next CPU
+
         let currentEntry = executionTimeline.find(e => currentCpu >= e.starts && currentCpu < e.starts + e.duration);
         let nextEntry = executionTimeline.find(e => e.starts > currentCpu);
         let currentCPU = currentEntry ? currentEntry.pid : '-';
         let nextCPU = nextEntry ? nextEntry.pid : '-';
 
-        // Calculate total execution time
+
         let totalExecutionTime = 0;
         if (executionTimeline.length > 0) {
             let last = executionTimeline[executionTimeline.length - 1];
             totalExecutionTime = last.starts + last.duration;
         }
 
-        // Calculate overall progress
+        
         let finished = Object.keys(completedMap).length;
         let allDone = processes.length > 0 && finished === processes.length;
         let overallProgress = allDone ? '100%' : (processes.length > 0 ? `${Math.floor((finished / processes.length) * 100)}%` : '-');
 
-        // Calculate AVG TAT and AVG RT
+
         let tatSum = 0, rtSum = 0, tatCount = 0, rtCount = 0;
         processes.forEach(p => {
             if (typeof p.tat === 'number') { tatSum += p.tat; tatCount++; }
@@ -655,16 +646,16 @@ function updateTableLive(processes) {
                 row.querySelector(".rt").textContent = process.rt;
 
                 completedMap[pid] = true;
-                row.classList.add("completed"); // optional: CSS highlight
+                row.classList.add("completed");
             }
         });
 
         if (allDone) {
             clearInterval(checkInterval);
-            clearInterval(cpuTimerId); // Stop CPU timer
+            clearInterval(cpuTimerId); 
         }
     }, 100);
-    //clearInterval(checkInterval);
+
 }
 
 function updateProgressBars(processes) {
@@ -680,17 +671,17 @@ function updateProgressBars(processes) {
     const interval = setInterval(() => {
         const currentCpu = Math.floor(cpuTime);
 
-        if (currentCpu === lastCpu) return; // Skip duplicates
+        if (currentCpu === lastCpu) return;
         lastCpu = currentCpu;
 
-        // Find the currently active timeline entry
+        
         const entry = executionTimeline.find(e =>
             currentCpu >= e.starts && currentCpu < e.starts + e.duration
         );
 
         if (entry) {
             activePid = entry.pid;
-            progressTimeMap[entry.pid] += 1; // One unit per frame
+            progressTimeMap[entry.pid] += 1; 
         }
 
         processes.forEach(p => {
@@ -720,7 +711,7 @@ function updateProgressBars(processes) {
             label.textContent = `${Math.floor(percent)}%`;
         });
 
-        // Stop if all processes are at 100%
+
         const allDone = processes.every(p => {
             const row = Array.from(rows).find(r => r.children[0].textContent.trim() === p.pid);
             const bar = row?.querySelector(".progress div");
@@ -728,7 +719,7 @@ function updateProgressBars(processes) {
             return width >= 99.9;
         });
     }, 100);
-    //clearInterval(interval);
+
 }
 
 let logTimerId = null;
@@ -744,7 +735,7 @@ function startLogsMonitor() {
     const currentAlgo = document.querySelector(".algoDropdown").value;
 
     const allotmentTracker = {};
-    const queueLevelTracker = {}; // Tracks queue level per pid (starts at 0)
+    const queueLevelTracker = {}; 
 
     logTimerId = setInterval(() => {
         const currentCpu = Math.floor(cpuTime);
@@ -770,7 +761,7 @@ function startLogsMonitor() {
                     appendLog(`[t=${entry.starts + entry.duration}] ${entry.pid} completed`);
                 } else if (entry.endState === "preempted") {
                     if (currentAlgo === "MLFQ") {
-                        // Only track and log allotment/demotion for MLFQ
+                        
                         if (!(entry.pid in allotmentTracker)) allotmentTracker[entry.pid] = 0;
                         if (!(entry.pid in queueLevelTracker)) queueLevelTracker[entry.pid] = 0;
 
@@ -781,11 +772,11 @@ function startLogsMonitor() {
 
                         if (used >= allotment && queueLevelTracker[entry.pid] < 3) {
                             queueLevelTracker[entry.pid]++;
-                            allotmentTracker[entry.pid] = 0; // reset for next level
+                            allotmentTracker[entry.pid] = 0; 
                             appendLog(`[t=${entry.starts + entry.duration}] ${entry.pid} demoted to Q${queueLevelTracker[entry.pid]}`);
                         }
                     } else {
-                        // For non-MLFQ algos like RR, just show preempted
+                       
                         appendLog(`[t=${entry.starts + entry.duration}] ${entry.pid} preempted`);
                     }
                 }
@@ -815,7 +806,7 @@ function startGanttLive() {
         block.className = "ganttBlock";
         block.style.width = "0px";
         block.style.backgroundColor = entry.pid === "IDLE" ? "#888" : getColorForPid(entry.pid);
-        block.style.whiteSpace = "pre-line"; // enables multiline text
+        block.style.whiteSpace = "pre-line"; 
         block.textContent = "";
 
         ganttGroup.appendChild(block);
@@ -858,13 +849,13 @@ function getColorForPid(pid) {
         return hsl ? parseInt(hsl[1]) : -1;
     });
 
-    // Try generating a color with a hue not too close to existing ones
+
     let tries = 0;
     do {
         const hue = Math.floor(Math.random() * 360);
-        const tooClose = existingHues.some(h => Math.abs(h - hue) < 30); // Avoid hues within 30 degrees
+        const tooClose = existingHues.some(h => Math.abs(h - hue) < 30);
         if (!tooClose || tries > 20) {
-            newColor = `hsl(${hue}, 70%, 60%)`; // Colorful but readable
+            newColor = `hsl(${hue}, 70%, 60%)`; 
             break;
         }
         tries++;
