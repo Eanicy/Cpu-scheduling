@@ -82,17 +82,29 @@ function inputChecker() {
     return value;
 }
 
-function randomRows() {
+
+// Generates a user-specified number of random processes and updates the table
+function randomRows(num) {
     let table = document.querySelector(".processTable tbody");
     table.innerHTML = "";
     processes = [];
-    const numOfProcesses = 15;
+    let numOfProcesses = 15;
+    if (typeof num === 'number' && num > 0) {
+        numOfProcesses = num;
+    } else {
+        // Try to get from input if not provided
+        const input = document.querySelector('.numProcessInput');
+        if (input && !isNaN(parseInt(input.value))) {
+            numOfProcesses = parseInt(input.value);
+        }
+    }
 
     for (let i = 0; i < numOfProcesses; i++) {
         const pid = `P${i + 1}`;
         let at = Math.floor(Math.random() * 4);
         let bt = Math.floor(Math.random() * 4) + 1;
 
+        // Optionally keep first 3 processes fixed for demo
         if (i == 0) {
             at = 0;
             bt = 2;
@@ -861,3 +873,7 @@ function getColorForPid(pid) {
     pidColorMap[pid] = newColor;
     return newColor;
 }
+
+
+
+
