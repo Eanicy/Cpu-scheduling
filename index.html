@@ -41,7 +41,9 @@
             </div>
                 
             <div class="ganttitlepanel">
-                <div class="titlepanel"></div>
+                <div class="titlepanel" style="width:100%; display:flex; align-items:center; justify-content:center; min-height:4em;">
+                    <span id="cpu-visualizer-text" style="font-size:4em; font-weight:bold; letter-spacing:4px; color:#fff; width:95vw; max-width:1800px; text-align:center; display:block; padding:0.2em 0;">CPU Visualizer</span>
+                </div>
                 <div class="ganttpanel">
                     <div class="ganttGroup">
 
@@ -89,6 +91,20 @@
         </div>
 
         <script src="script.js"></script>
+    <script>
+    // Looping text animation for CPU Visualizer
+    (function() {
+        const text = "CPU Visualizer ";
+        const el = document.getElementById("cpu-visualizer-text");
+        let i = 0;
+        function loop() {
+            el.textContent = text.substring(i) + text.substring(0, i);
+            i = (i + 1) % text.length;
+            setTimeout(loop, 140);
+        }
+        if (el) loop();
+    })();
+    </script>
     </div>
 </body>
 <!--posa-->
