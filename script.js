@@ -1,4 +1,4 @@
-/ Updates the monitoringPanel with CPU scheduling stats as the simulation runs.
+// Updates the monitoringPanel with CPU scheduling stats as the simulation runs.
 function updateMonitoringPanel({
     cpuTime = '-',
     currentCPU = '-',
@@ -28,8 +28,8 @@ let executionTimeline = [];
 
 function startSimulation() {
     if(runValidation() == false){
+        alert("Invalid input");
         return;
-        alert("Bruh atleast input a num of process");
     }
     executionTimeline = [];
     let result;
@@ -884,5 +884,3 @@ function getColorForPid(pid) {
     pidColorMap[pid] = newColor;
     return newColor;
 }
-
-
