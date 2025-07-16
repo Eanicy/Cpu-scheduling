@@ -1,8 +1,8 @@
 @font-face {
     font-family: 'Roboto';
     src: url('Roboto/Roboto-VariableFont_wdth,wght.ttf') format('truetype');
-    font-weight: 100 900; /* optional but recommended */
-    font-stretch: 75% 100%; /* optional: for wdth axis */
+    font-weight: 100 900; 
+    font-stretch: 75% 100%; 
 }
 
 * {
@@ -28,16 +28,19 @@
     flex: 1;
     display: flex;
     flex-direction: row;
-    background-color: lightcoral;
+    background-color: white;
 }
 
 .inputpanel {
-    width: 400px;
     display: flex;
     flex-direction: column;
     align-items: center;
     background-color: #88304E;
     border: 2px solid white;
+    width: 400px;
+    min-width: 300px;
+    max-width: 400px;
+    flex-shrink: 0;
 }
 
 .dropDownGroup {
@@ -112,11 +115,12 @@
 
 .ganttitlepanel {
     background-color: lightgoldenrodyellow;
-    width: 85vw;
+    flex: 1;
+    min-width: 0;
     display: flex;
     flex-direction: column;
-
 }
+
 
 .titlepanel {
     background-color: #2C2C2C;
@@ -173,7 +177,13 @@
     flex:1;
     display: flex;
     flex-direction: row;
-    background-color: lightslategray;
+    background-color: white;
+}
+
+.row2 > *{
+    border-style: solid;
+    border-color: white;
+    border-width: 3px !important; 
 }
 
 .resultpanel {
@@ -182,6 +192,8 @@
     align-items: center;
     justify-content: center;
     background-color: #88304E;
+    min-width: 400px;
+    overflow: hidden;
 }
 
 .resultTableGroup {
@@ -230,11 +242,14 @@ th{
 
 .mlfqresultpanel {
     color: white;
-    background-color: #522546;
+    background-color: #39082c;
     flex: 1;
     padding: 30px;
-    border: 1px solid white;
-    border-width: 0px 2px 0px 0px;
+    min-width: 300px;
+    overflow: hidden;
+    border-color: white;
+    border-style: solid;
+    border-width: 0 3px 3px 3px;
 }
 
 .monitoringPanel {
@@ -253,20 +268,28 @@ th{
     display: flex;
     align-items: center;
     justify-content: center;
-    background-color: red;
+    background-color: #88304E;
+    min-width: 300px;
+    max-width: 430px;
+    overflow: hidden;
+    padding: 15px;
+    border-color: white;
+    border-style: solid;
+    border-width: 0 5px 5px 5px;
+    flex-shrink: 1;
+    flex-grow: 0;
 }
 
 .logsbg{
     padding: 15px;
-    background-color: #410047;
+    background-color: #2C2C2C;
+    width: 90%;
 }
 
 .logsGroup {
-    
-    background-color: #2C2C2C;
     height: 300px;
     max-height: 320px;
-    width: 430px;
+    flex: 1;
     color: green;
     font-size: 18px;
     font-family: monospace;
@@ -276,4 +299,8 @@ th{
 .timenum{
 
     font-size: 20px;
+}
+
+input {
+    padding-left: 10px;
 }
