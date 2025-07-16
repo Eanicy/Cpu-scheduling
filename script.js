@@ -1,4 +1,4 @@
-// Updates the monitoringPanel with CPU scheduling stats as the simulation runs.
+/ Updates the monitoringPanel with CPU scheduling stats as the simulation runs.
 function updateMonitoringPanel({
     cpuTime = '-',
     currentCPU = '-',
@@ -8,16 +8,16 @@ function updateMonitoringPanel({
     avgTAT = '-',
     avgRT = '-'
 } = {}) {
-    document.querySelector('.timenum').textContent = `CPU Time: ${cpuTime}`;
+    document.querySelector('.timenum').textContent = CPU Time: ${cpuTime};
     const monitoringPanel = document.querySelector('.monitoringPanel');
     if (!monitoringPanel) return;
     const stats = [
-        `Current CPU: ${currentCPU}`,
-        `Next CPU: ${nextCPU}`,
-        `Total Execution Time: ${totalExecutionTime}`,
-        `Overall Progress: ${overallProgress}`,
-        `AVG TAT: ${avgTAT}`,
-        `AVG RT: ${avgRT}`
+        Current CPU: ${currentCPU},
+        Next CPU: ${nextCPU},
+        Total Execution Time: ${totalExecutionTime},
+        Overall Progress: ${overallProgress},
+        AVG TAT: ${avgTAT},
+        AVG RT: ${avgRT}
     ];
     const pTags = monitoringPanel.querySelectorAll('p.nextCPU');
     pTags.forEach((p, i) => {
@@ -27,6 +27,10 @@ function updateMonitoringPanel({
 let executionTimeline = [];
 
 function startSimulation() {
+    if(runValidation() == false){
+        return;
+        alert("Bruh atleast input a num of process");
+    }
     executionTimeline = [];
     let result;
     randomRows();
@@ -60,7 +64,7 @@ document.addEventListener("DOMContentLoaded", function () {
 function speedMultiplierChange(value) {
     let sliderText = document.querySelector(".sliderText");
     if (value < 10)
-        sliderText.textContent = `0.${value}x`;
+        sliderText.textContent = 0.${value}x;
     else
         sliderText.textContent = "1.0x";
 }
@@ -82,12 +86,28 @@ function inputChecker() {
     return value;
 }
 
+function runValidation(){
+    let value = document.querySelector(".algoDropdown").value;
+    let numProbox = document.querySelector(".numProcessInput").value;
+    let tsbox = document.querySelector(".tsInput");
+    let allotbox = document.querySelector(".allotmentInput");
+    let allowRun;
+
+    if(isNaN(parseInt(numProbox))){
+        allowRun = false;
+    }else{
+        allowRun = true;
+    }
+
+    return allowRun;
+}
+
 
 function randomRows(num) {
     let table = document.querySelector(".processTable tbody");
     table.innerHTML = "";
     processes = [];
-    let numOfProcesses = 15;
+    let numOfProcesses = 0;
     if (typeof num === 'number' && num > 0) {
         numOfProcesses = num;
     } else {
@@ -98,7 +118,7 @@ function randomRows(num) {
     }
 
     for (let i = 0; i < numOfProcesses; i++) {
-        const pid = `P${i + 1}`;
+        const pid = P${i + 1};
         let at = Math.floor(Math.random() * 4);
         let bt = Math.floor(Math.random() * 4) + 1;
 
@@ -583,7 +603,7 @@ function startCpuTimer() {
 }
 
 function updateCpuTimeDisplay() {
-    document.querySelector(".timenum").textContent = `CPU Time: ${Math.floor(cpuTime)}`;
+    document.querySelector(".timenum").textContent = CPU Time: ${Math.floor(cpuTime)};
 }
 
 function updateTableLive(processes) {
@@ -609,7 +629,7 @@ function updateTableLive(processes) {
         
         let finished = Object.keys(completedMap).length;
         let allDone = processes.length > 0 && finished === processes.length;
-        let overallProgress = allDone ? '100%' : (processes.length > 0 ? `${Math.floor((finished / processes.length) * 100)}%` : '-');
+        let overallProgress = allDone ? '100%' : (processes.length > 0 ? ${Math.floor((finished / processes.length) * 100)}% : '-');
 
 
         let tatSum = 0, rtSum = 0, tatCount = 0, rtCount = 0;
@@ -693,7 +713,7 @@ function updateProgressBars(processes) {
             const executed = progressTimeMap[p.pid];
             const percent = Math.min((executed / p.bt) * 100, 100);
 
-            bar.style.width = `${percent}%`;
+            bar.style.width = ${percent}%;
 
             let label = bar.querySelector("span");
             if (!label) {
@@ -708,7 +728,7 @@ function updateProgressBars(processes) {
                 bar.appendChild(label);
             }
 
-            label.textContent = `${Math.floor(percent)}%`;
+            label.textContent = ${Math.floor(percent)}%;
         });
 
 
@@ -741,24 +761,24 @@ function startLogsMonitor() {
         const currentCpu = Math.floor(cpuTime);
 
         executionTimeline.forEach((entry) => {
-            const logId = `${entry.pid}-${entry.starts}-${entry.endState}`;
+            const logId = ${entry.pid}-${entry.starts}-${entry.endState};
 
             if (currentCpu >= entry.starts && !printedLogs.has(logId)) {
                 printedLogs.add(logId);
 
                 if (entry.endState === "preempted" || entry.endState === "completed") {
-                    appendLog(`[t=${entry.starts}] ${entry.pid} starts execution`);
+                    appendLog([t=${entry.starts}] ${entry.pid} starts execution);
                 }
 
                 const q = entry.duration;
-                appendLog(`[t=${entry.starts}] ${entry.pid} runs for (${q})`);
+                appendLog([t=${entry.starts}] ${entry.pid} runs for (${q}));
             }
 
             if (currentCpu >= entry.starts + entry.duration && printedLogs.has(logId) && !printedLogs.has(logId + "-end")) {
                 printedLogs.add(logId + "-end");
 
                 if (entry.endState === "completed") {
-                    appendLog(`[t=${entry.starts + entry.duration}] ${entry.pid} completed`);
+                    appendLog([t=${entry.starts + entry.duration}] ${entry.pid} completed);
                 } else if (entry.endState === "preempted") {
                     if (currentAlgo === "MLFQ") {
                         
@@ -768,16 +788,16 @@ function startLogsMonitor() {
                         allotmentTracker[entry.pid] += entry.duration;
 
                         const used = allotmentTracker[entry.pid];
-                        appendLog(`[t=${entry.starts + entry.duration}] ${entry.pid} preempted (allotment used: ${used}/${allotment})`);
+                        appendLog([t=${entry.starts + entry.duration}] ${entry.pid} preempted (allotment used: ${used}/${allotment}));
 
                         if (used >= allotment && queueLevelTracker[entry.pid] < 3) {
                             queueLevelTracker[entry.pid]++;
                             allotmentTracker[entry.pid] = 0; 
-                            appendLog(`[t=${entry.starts + entry.duration}] ${entry.pid} demoted to Q${queueLevelTracker[entry.pid]}`);
+                            appendLog([t=${entry.starts + entry.duration}] ${entry.pid} demoted to Q${queueLevelTracker[entry.pid]});
                         }
                     } else {
                        
-                        appendLog(`[t=${entry.starts + entry.duration}] ${entry.pid} preempted`);
+                        appendLog([t=${entry.starts + entry.duration}] ${entry.pid} preempted);
                     }
                 }
             }
@@ -819,14 +839,14 @@ function startGanttLive() {
         const currentCpu = Math.floor(cpuTime);
 
         blockRefs.forEach(({ element, entry }) => {
-            let label = entry.pid === "IDLE" ? "IDLE" : `${entry.pid}\n(${entry.duration})`;
+            let label = entry.pid === "IDLE" ? "IDLE" : ${entry.pid}\n(${entry.duration});
 
             if (currentCpu >= entry.starts && currentCpu < entry.starts + entry.duration) {
                 const elapsed = currentCpu - entry.starts + 1;
-                element.style.width = `${elapsed * scale}px`;
+                element.style.width = ${elapsed * scale}px;
                 element.textContent = label;
             } else if (currentCpu >= entry.starts + entry.duration) {
-                element.style.width = `${entry.duration * scale}px`;
+                element.style.width = ${entry.duration * scale}px;
                 element.textContent = label;
             }
         });
@@ -855,7 +875,7 @@ function getColorForPid(pid) {
         const hue = Math.floor(Math.random() * 360);
         const tooClose = existingHues.some(h => Math.abs(h - hue) < 30);
         if (!tooClose || tries > 20) {
-            newColor = `hsl(${hue}, 70%, 60%)`; 
+            newColor = hsl(${hue}, 70%, 60%); 
             break;
         }
         tries++;
@@ -864,7 +884,5 @@ function getColorForPid(pid) {
     pidColorMap[pid] = newColor;
     return newColor;
 }
-
-
 
 
