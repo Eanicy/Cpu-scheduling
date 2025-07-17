@@ -36,7 +36,7 @@
     flex-direction: column;
     align-items: center;
     background-color: #88304E;
-    border: 2px solid white;
+    border: 3px solid white;
     width: 400px;
     min-width: 300px;
     max-width: 400px;
@@ -126,9 +126,22 @@
 
 
 .titlepanel {
+    border-style: solid;
+    border-color: white;
+    border-width: 3px;
     background-color: #2C2C2C;
     flex: 1;
+    display: flex;
+    justify-content: center;
+    align-items: stretch;
+    color: rgb(231, 231, 231);
+    font-family: 'Square';
+    text-align: center;
+    line-height: 150px;
+    text-shadow: 5px 5px 1px rgba(0, 0, 0, 1);
+    font-size: 30px;
 }
+
 
 .ganttpanel {
     background-color: #522546;
@@ -192,16 +205,18 @@
 .resultpanel {
     flex: 2;
     display: flex;
-    align-items: center;
+    align-items: flex-start;
     justify-content: center;
     background-color: #88304E;
     min-width: 400px;
     overflow: hidden;
+    padding-top: 20px;
 }
 
 .resultTableGroup {
     background-color: #522546;
-    height: 380px;
+    height: auto;
+    max-height: 380px;
     width: 95%;
     overflow-y: auto;
 }
@@ -293,7 +308,7 @@ th{
     height: 380px;
     max-height: 380px;
     flex: 1;
-    color: green;
+    color: rgb(0, 148, 0);
     font-size: 18px;
     font-family: monospace;
     overflow-y: auto;
