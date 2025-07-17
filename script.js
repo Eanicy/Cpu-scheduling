@@ -1,36 +1,14 @@
-// Updates the monitoringPanel with CPU scheduling stats as the simulation runs.
-function updateMonitoringPanel({
-    cpuTime = '-',
-    currentCPU = '-',
-    nextCPU = '-',
-    totalExecutionTime = '-',
-    overallProgress = '-',
-    avgTAT = '-',
-    avgRT = '-'
-} = {}) {
-    document.querySelector('.timenum').textContent = `CPU Time: ${cpuTime}`;
-    const monitoringPanel = document.querySelector('.monitoringPanel');
-    if (!monitoringPanel) return;
-    const stats = [
-        `Current CPU: ${currentCPU}`,
-        `Next CPU: ${nextCPU}`,
-        `Total Execution Time: ${totalExecutionTime}`,
-        `Overall Progress: ${overallProgress}`,
-        `AVG TAT: ${avgTAT}`,
-        `AVG RT: ${avgRT}`
-    ];
-    const pTags = monitoringPanel.querySelectorAll('p.nextCPU');
-    pTags.forEach((p, i) => {
-        if (stats[i] !== undefined) p.textContent = stats[i];
-    });
-}
 let executionTimeline = [];
+let updateInterval = null;
 
 function startSimulation() {
     if(runValidation() == false){
         alert("Invalid input");
         return;
     }
+    let startButton = document.getElementById("startButton");
+    startButton.disabled = true;
+    isSimulationRunning = true;
     executionTimeline = [];
     let result;
     randomRows();
@@ -54,16 +32,83 @@ function startSimulation() {
     startGanttLive();
 }
 
+function resetValues() {
+    // Stop all intervals
+    let startButton = document.getElementById("startButton");
+    startButton.disabled = false;
+    clearInterval(cpuTimerId);
+    clearInterval(ganttIntervalId);
+    clearInterval(logTimerId);
+
+    // Also stop updateTableLive interval by tracking it!
+    if (typeof updateInterval !== "undefined") {
+        clearInterval(updateInterval);
+    }
+
+    // Reset global state
+    cpuTime = 0;
+    executionTimeline = [];
+    printedLogs = new Set();
+
+    // Reset CPU time display
+    document.querySelector(".timenum").textContent = "CPU Time: -";
+
+    // Reset monitoring panel values manually
+    updateMonitoringPanel({
+        cpuTime: '-',
+        currentCPU: '-',
+        nextCPU: '-',
+        totalExecutionTime: '-',
+        overallProgress: '-',
+        avgTAT: '-',
+        avgRT: '-'
+    });
+
+    // Clear table
+    document.querySelector(".processTable tbody").innerHTML = "";
+
+    // Clear logs and gantt
+    document.querySelector(".logsGroup").innerHTML = "";
+    document.querySelector(".ganttGroup").innerHTML = "";
+
+    // Reset inputs
+    document.querySelector(".numProcessInput").value = "";
+    document.querySelector(".tsInput").value = "";
+    document.querySelector(".allotmentInput").value = "";
+}
+
+let index = 0;
+function updateMonitoringPanel({
+    cpuTime = '-',
+    currentCPU = '-',
+    nextCPU = '-',
+    totalExecutionTime = '-',
+    overallProgress = '-',
+    avgTAT = '-',
+    avgRT = '-'
+}) {
+    const panel = document.querySelector(".monitoringPanel");
+    if (!panel) return;
+
+    const values = panel.querySelectorAll(".nextCPU");
+    if (values.length < 6) return;
+
+    values[0].textContent = `Current CPU: ${currentCPU}`;
+    values[1].textContent = `Next CPU: ${nextCPU}`;
+    
+    console.log(`${index+1}`);
+    values[2].textContent = `Total Execution Time: ${totalExecutionTime}`;
+    values[3].textContent = `Overall Progress: ${overallProgress}`;
+    values[4].textContent = `AVG TAT: ${avgTAT}`;
+    values[5].textContent = `AVG RT: ${avgRT}`;
+}
+
 document.addEventListener("DOMContentLoaded", function () {
     let tsbox = document.querySelector(".tsInput");
     let allotbox = document.querySelector(".allotmentInput");
     tsbox.disabled = true;
     allotbox.disabled = true;
 });
-
-function resetValues(){
-    
-}
 
 function inputChecker() {
     let value = document.querySelector(".algoDropdown").value;
@@ -82,21 +127,16 @@ function inputChecker() {
     return value;
 }
 
-function runValidation(){
-    let value = document.querySelector(".algoDropdown").value;
-    let numProbox = document.querySelector(".numProcessInput").value;
-    let tsbox = document.querySelector(".tsInput");
-    let allotbox = document.querySelector(".allotmentInput");
-    let allowRun;
+function runValidation() {
+    const numProbox = document.querySelector(".numProcessInput").value;
+    const num = parseInt(numProbox);
 
-    if(isNaN(parseInt(numProbox)) == true){
-        allowRun = false;
-    }else{
-        allowRun = true;
+    if (isNaN(num) || num < 1) {
+        return false;
     }
-
-    return allowRun;
+    return true;
 }
+
 
 
 function randomRows(num) {
@@ -115,8 +155,8 @@ function randomRows(num) {
 
     for (let i = 0; i < numOfProcesses; i++) {
         const pid = `P${i + 1}`;
-        let at = Math.floor(Math.random() * 4);
-        let bt = Math.floor(Math.random() * 4) + 1;
+        let at = Math.floor(Math.random() * 16);
+        let bt = Math.floor(Math.random() * 16) + 1;
 
         if (i == 0) {
             at = 0;
@@ -400,7 +440,6 @@ function rr(processList) {
 
         const execTime = Math.min(quantum, remaining[idx]);
 
-        // ⏱️ Timeline log before running
         executionTimeline.push({
             pid: p.pid,
             starts: time,
@@ -514,11 +553,12 @@ function mlfq(processList) {
         }
 
         executionTimeline.push({
-            pid: p.pid,
-            starts: startTime,
-            duration: execTime,
-            endState: (remaining[idx] === execTime) ? "completed" : "preempted"
-        });
+    pid: p.pid,
+    starts: startTime,
+    duration: execTime,
+    endState: (remaining[idx] === execTime) ? "completed" : "preempted",
+    queueLevel: queueLevel  // So it’s 1 to 4 instead of 0 to 3
+});
 
 
         remaining[idx] -= execTime;
@@ -596,6 +636,7 @@ function startCpuTimer() {
         cpuTime += 0.1;
         updateCpuTimeDisplay();
     }, 100);
+    
 }
 
 function updateCpuTimeDisplay() {
@@ -605,8 +646,8 @@ function updateCpuTimeDisplay() {
 function updateTableLive(processes) {
     const completedMap = {};
     const rows = document.querySelectorAll(".processTable tbody tr");
-
-    const checkInterval = setInterval(() => {
+    if (updateInterval) clearInterval(updateInterval);
+    updateInterval = setInterval(() => {
         const currentCpu = Math.floor(cpuTime);
 
 
@@ -667,9 +708,12 @@ function updateTableLive(processes) {
         });
 
         if (allDone) {
-            clearInterval(checkInterval);
+            clearInterval(updateInterval); 
             clearInterval(cpuTimerId); 
+            let startButton = document.getElementById("startButton");
+            startButton.disabled = false;
         }
+
     }, 100);
 
 }
@@ -835,7 +879,15 @@ function startGanttLive() {
         const currentCpu = Math.floor(cpuTime);
 
         blockRefs.forEach(({ element, entry }) => {
-            let label = entry.pid === "IDLE" ? "IDLE" : `${entry.pid}\n(${entry.duration})`;
+            let label;
+            if (entry.pid === "IDLE") {
+                label = "IDLE";
+            } else if (entry.queueLevel) {
+                label = `${entry.pid}\n(${entry.duration})\nQ${entry.queueLevel}`;
+            } else {
+                label = `${entry.pid}\n(${entry.duration})`;
+            }
+
 
             if (currentCpu >= entry.starts && currentCpu < entry.starts + entry.duration) {
                 const elapsed = currentCpu - entry.starts + 1;
