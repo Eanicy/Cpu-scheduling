@@ -4,8 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="style.css">
-    <title>Document</title>
-</head>
+    <title>CPU Scheduling Simulator</title>
+</head>     
 <body>
     <div class="mainbody">
         <div class="row1">
@@ -36,16 +36,18 @@
 
                 </div>
                 <div class="submitGroup">
-                    <button class="startButton" onclick="resetValues()">RESET VALUES</button>
-                    <button class="startButton" onclick="startSimulation()">SIMULATE</button>
+                    <button class="startButton"  onclick="resetValues()">RESET VALUES</button>
+                    <button class="startButton" id="startButton" onclick="startSimulation()">SIMULATE</button>
                 </div>
             </div>
                 
             <div class="ganttitlepanel">
-                <div class="titlepanel"></div>
+                <div class="titlepanel">
+                    <h1>CPU SCHEDULING SIMULATOR</h1>
+                </div>
                 <div class="ganttpanel">
                     <div class="ganttGroup">
-
+                        
                     </div>
                 </div>
             </div>
