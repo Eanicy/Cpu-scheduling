@@ -27,6 +27,10 @@ function updateMonitoringPanel({
 let executionTimeline = [];
 
 function startSimulation() {
+    if(runValidation() == false){
+        alert("Invalid input");
+        return;
+    }
     executionTimeline = [];
     let result;
     randomRows();
@@ -57,12 +61,8 @@ document.addEventListener("DOMContentLoaded", function () {
     allotbox.disabled = true;
 });
 
-function speedMultiplierChange(value) {
-    let sliderText = document.querySelector(".sliderText");
-    if (value < 10)
-        sliderText.textContent = `0.${value}x`;
-    else
-        sliderText.textContent = "1.0x";
+function resetValues(){
+    
 }
 
 function inputChecker() {
@@ -82,12 +82,28 @@ function inputChecker() {
     return value;
 }
 
+function runValidation(){
+    let value = document.querySelector(".algoDropdown").value;
+    let numProbox = document.querySelector(".numProcessInput").value;
+    let tsbox = document.querySelector(".tsInput");
+    let allotbox = document.querySelector(".allotmentInput");
+    let allowRun;
+
+    if(isNaN(parseInt(numProbox)) == true){
+        allowRun = false;
+    }else{
+        allowRun = true;
+    }
+
+    return allowRun;
+}
+
 
 function randomRows(num) {
     let table = document.querySelector(".processTable tbody");
     table.innerHTML = "";
     processes = [];
-    let numOfProcesses = 15;
+    let numOfProcesses = 0;
     if (typeof num === 'number' && num > 0) {
         numOfProcesses = num;
     } else {
@@ -864,7 +880,3 @@ function getColorForPid(pid) {
     pidColorMap[pid] = newColor;
     return newColor;
 }
-
-
-
-
