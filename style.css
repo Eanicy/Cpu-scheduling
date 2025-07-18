@@ -186,7 +186,7 @@
     padding: 0 6px;
     white-space: pre;
     position: relative;
-    flex-shrink: 0; /* 🔥 prevents shrinking to fit */
+    flex-shrink: 0; 
 }
 
 /* Row 2 */
