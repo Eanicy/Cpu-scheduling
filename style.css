@@ -131,6 +131,7 @@
     border-width: 3px;
     background-color: #2C2C2C;
     flex: 1;
+    max-height: 150px;
     display: flex;
     justify-content: center;
     align-items: stretch;
@@ -322,3 +323,4 @@ th{
 input {
     padding-left: 10px;
 }
+
