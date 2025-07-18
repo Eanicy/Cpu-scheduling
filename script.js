@@ -163,7 +163,7 @@ function randomRows(num) {
             bt = 2;
         } else if (i == 1) {
             at = 3;
-            bt = 6;
+            bt = 10;
         } else if (i == 2) {
             at = 4;
             bt = 4;
@@ -882,7 +882,7 @@ function startGanttLive() {
             let label;
             if (entry.pid === "IDLE") {
                 label = "IDLE";
-            } else if (entry.queueLevel) {
+            } else if (entry.queueLevel !== undefined) {
                 label = `${entry.pid}\n(${entry.duration})\nQ${entry.queueLevel}`;
             } else {
                 label = `${entry.pid}\n(${entry.duration})`;
@@ -932,3 +932,4 @@ function getColorForPid(pid) {
     pidColorMap[pid] = newColor;
     return newColor;
 }
+
