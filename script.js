@@ -848,7 +848,8 @@ function startLogsMonitor() {
         const div = document.createElement("div");
         div.textContent = text;
         document.querySelector(".logsGroup").appendChild(div);
-        div.scrollIntoView({ behavior: "smooth", block: "end" });
+        let logsGroup = document.querySelector(".logsGroup");
+        logsGroup.scrollTop = logsGroup.scrollHeight;
     }
 }
 
