@@ -25,6 +25,9 @@
 07/12/25
 |Bazar| - added progress bars, timeline object, and soon will be working to dynamic elements.
 
+07/12/25
+|Bazar| - spent the rest of the day with responsiveLayouts.
+
 07/14/25
 [Allanic] Added CPU time that displayes data on lower left.
 
