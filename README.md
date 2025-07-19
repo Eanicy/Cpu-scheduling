@@ -31,6 +31,8 @@
 07/14/25
 [Allanic] Added CPU time that displayes data on lower left.
 
+07/19/25
+|Bazar| - Added boostinterval to mlfq.
 
 CPU Scheduler
 Click on the drop down and select scheduling algorithm to run.
