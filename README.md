@@ -71,6 +71,9 @@ Processes are placed in a FIFO queue
 Picks the next process in queue
 Runs it full quantum the remaining burst time 
 
+<img width="1917" height="961" alt="image" src="https://github.com/user-attachments/assets/093eb508-596a-4c0b-bcf6-9ec8638abcf6" />
+
+
 MLFQ
 At every time unit, any process that arrives is placed into Q0 (highest priority).
 The function always tries Q0 first, then Q1, Q2, and finally Q3.
@@ -83,6 +86,9 @@ If the process did not finish:
   If it used its full allotment, it's demoted to the next queue.
   If it did not use its full allotment, it stays at the same level.
   It is then requeued.
+
+  <img width="1915" height="960" alt="image" src="https://github.com/user-attachments/assets/0929ed86-cc1a-4592-9442-d8ca2cd436c1" />
+
 
   features:
   - when the simulation run, the inputs are disabled except for reset.
