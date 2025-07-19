@@ -101,6 +101,7 @@ If the process did not finish:
   If it used its full allotment, it's demoted to the next queue.
   If it did not use its full allotment, it stays at the same level.
   It is then requeued.
+When boostInterval is reached in the code which is set to 20 all processes are boosted back to priority Q0.
 
   <img width="1915" height="960" alt="image" src="https://github.com/user-attachments/assets/0929ed86-cc1a-4592-9442-d8ca2cd436c1" />
 
