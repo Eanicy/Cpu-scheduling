@@ -158,16 +158,16 @@ function randomRows(num) {
         let at = Math.floor(Math.random() * 16);
         let bt = Math.floor(Math.random() * 16) + 1;
 
-        if (i == 0) {
+        /*if (i == 0) {
             at = 0;
-            bt = 2;
+            bt = 10;
         } else if (i == 1) {
-            at = 3;
+            at = 0;
             bt = 10;
         } else if (i == 2) {
-            at = 4;
-            bt = 4;
-        }
+            at = 0;
+            bt = 10;
+        }*/
 
         const process = { pid, at, bt, ct: 0, tat: 0, rt: 0 };
         processes.push(process);
@@ -473,9 +473,10 @@ function rr(processList) {
 function mlfq(processList) {
     const baseQuantum = parseInt(document.querySelector(".tsInput").value);
     const allotment = parseInt(document.querySelector(".allotmentInput").value);
+    const boostInterval = 20; // NEW: user-defined boost interval
 
-    if (isNaN(baseQuantum) || isNaN(allotment)) {
-        alert("Please enter valid quantum and allotment times for MLFQ.");
+    if (isNaN(baseQuantum) || isNaN(allotment) || isNaN(boostInterval)) {
+        alert("Please enter valid quantum, allotment, and boost time.");
         return [];
     }
 
@@ -492,11 +493,31 @@ function mlfq(processList) {
     const Q0 = [], Q1 = [], Q2 = [], Q3 = [];
 
     while (completed < n) {
+        // Handle new arrivals
         for (let i = 0; i < n; i++) {
             if (processList[i].at <= time && !isCompleted[i] && !inQueue[i]) {
                 Q0.push(i);
                 inQueue[i] = true;
             }
+        }
+
+        // Handle Boost
+        if (time > 0 && time % boostInterval === 0) {
+            // Reset all non-completed processes
+            for (let i = 0; i < n; i++) {
+                if (!isCompleted[i]) {
+                    usedAllotment[i] = 0;
+                    // Move to Q0 only if not already in Q0
+                    if (!Q0.includes(i)) {
+                        Q0.push(i);
+                        inQueue[i] = true;
+                    }
+                }
+            }
+            // Clear other queues
+            Q1.length = 0;
+            Q2.length = 0;
+            Q3.length = 0;
         }
 
         let idx = -1;
@@ -506,11 +527,11 @@ function mlfq(processList) {
         if (Q0.length > 0) {
             idx = Q0.shift(); queueLevel = 0; quantum = baseQuantum;
         } else if (Q1.length > 0) {
-            idx = Q1.shift(); queueLevel = 1; quantum = baseQuantum * 2;
+            idx = Q1.shift(); queueLevel = 1; quantum = baseQuantum;
         } else if (Q2.length > 0) {
-            idx = Q2.shift(); queueLevel = 2; quantum = baseQuantum * 4;
+            idx = Q2.shift(); queueLevel = 2; quantum = baseQuantum;
         } else if (Q3.length > 0) {
-            idx = Q3.shift(); queueLevel = 3; quantum = remaining[idx];
+            idx = Q3.shift(); queueLevel = 3; quantum = baseQuantum;
         } else {
             executionTimeline.push({
                 pid: "IDLE",
@@ -518,11 +539,9 @@ function mlfq(processList) {
                 duration: 1,
                 endState: "idle"
             });
-
             time++;
             continue;
         }
-
 
         inQueue[idx] = false;
         const p = processList[idx];
@@ -544,22 +563,39 @@ function mlfq(processList) {
 
         for (let t = 0; t < execTime; t++) {
             time++;
+
+            // Check for new arrivals during execution
             for (let i = 0; i < n; i++) {
                 if (processList[i].at === time && !isCompleted[i] && !inQueue[i]) {
                     Q0.push(i);
                     inQueue[i] = true;
                 }
             }
+
+            // Apply boost if boost time hits during execution
+            if (time > 0 && time % boostInterval === 0) {
+                for (let i = 0; i < n; i++) {
+                    if (!isCompleted[i]) {
+                        usedAllotment[i] = 0;
+                        if (!Q0.includes(i)) {
+                            Q0.push(i);
+                            inQueue[i] = true;
+                        }
+                    }
+                }
+                Q1.length = 0;
+                Q2.length = 0;
+                Q3.length = 0;
+            }
         }
 
         executionTimeline.push({
-    pid: p.pid,
-    starts: startTime,
-    duration: execTime,
-    endState: (remaining[idx] === execTime) ? "completed" : "preempted",
-    queueLevel: queueLevel  // So it’s 1 to 4 instead of 0 to 3
-});
-
+            pid: p.pid,
+            starts: startTime,
+            duration: execTime,
+            endState: (remaining[idx] === execTime) ? "completed" : "preempted",
+            queueLevel: queueLevel
+        });
 
         remaining[idx] -= execTime;
         usedAllotment[idx] += execTime;
@@ -588,6 +624,7 @@ function mlfq(processList) {
 
     return processList;
 }
+
 
 function getDatatables() {
     const rows = document.querySelectorAll(".processTable tbody tr");
