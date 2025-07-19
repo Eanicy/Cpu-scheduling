@@ -46,6 +46,10 @@ Continues until all processes are executed
 <img width="1910" height="956" alt="image" src="https://github.com/user-attachments/assets/516169ab-3db3-40d7-9ba6-5ad25c27fb5d" />
 
 
+
+
+
+
 SJF (non Preemptive)
 Looks at all processes that have arrived by the current time.
 Chooses the one with the shortest burst time.
@@ -54,6 +58,9 @@ Updates the CPU clock.
 Repeats until all tasks are done.
 
 <img width="1909" height="989" alt="image" src="https://github.com/user-attachments/assets/f254ef0c-535f-4a30-ab66-6caa66d21077" />
+
+
+
 
 
 SRTF
@@ -65,6 +72,9 @@ When a process’s remaining time reaches zero, it's marked as complete.
 <img width="1918" height="1010" alt="image" src="https://github.com/user-attachments/assets/e6a4a7d9-0cc6-43b4-857e-7418bd6d2d6c" />
 
 
+
+
+
 RR
 Processes each task in time slices
 Processes are placed in a FIFO queue
@@ -72,6 +82,9 @@ Picks the next process in queue
 Runs it full quantum the remaining burst time 
 
 <img width="1917" height="961" alt="image" src="https://github.com/user-attachments/assets/093eb508-596a-4c0b-bcf6-9ec8638abcf6" />
+
+
+
 
 
 MLFQ
@@ -88,6 +101,9 @@ If the process did not finish:
   It is then requeued.
 
   <img width="1915" height="960" alt="image" src="https://github.com/user-attachments/assets/0929ed86-cc1a-4592-9442-d8ca2cd436c1" />
+
+
+
 
 
   features:
